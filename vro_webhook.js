@@ -20,11 +20,18 @@ http.createServer(function (req, res) {
 		request_body_array.push(chunk);
 	});
 	
+	req.on('error', function(chunk) {
+		console.log("ERROR = " + err.message);
+	});
+	
 	req.on('end', function() {
 		var request_body = "";
 		if (request_body_array.length > 0) {
 			request_body = request_body_array.join('');
 		}
+		
+		// Comment this out to stop printing out the request.
+		console.log(request_body);
 
 		responseCode = handle_request(req.url, request_body);
 		res.writeHead(responseCode, {'Content-Type': 'text/plain'});
@@ -63,10 +70,9 @@ function handle_request(request_url, request_body) {
 function call_vro(workflow_id, request_body)
 {
 	var creds_base64 = new Buffer(vro_username + ":" + vro_password).toString('base64');
-	//var messages_value = new Buffer(request_body).toString('base64');
+	var messages_value = new Buffer(request_body).toString('base64');
 
 	var request_body_json = JSON.parse(request_body);
-	var messages_value = new Buffer(request_body_json.messages).toString('base64');
 
 	var vro_execution_context = {
 		parameters: [
@@ -151,5 +157,5 @@ function call_vro(workflow_id, request_body)
 	req.end();
 }
 
-// log what that we started listening on localhost:5001
+// log what that we started listening.
 console.log('Server running on port 5001');
